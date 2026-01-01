@@ -25,7 +25,6 @@
             gap: 25px;
         }
 
-        /* THE CARD */
         #id-card {
             width: 600px; 
             height: 380px; 
@@ -51,11 +50,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
         .photo-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* SIGNATURE AREA */
         .sig-container {
             margin-top: 15px;
             width: 125px;
@@ -64,11 +61,9 @@
             justify-content: center;
             align-items: center;
         }
-        .sig-container img {
+        #sig-display {
             max-width: 110px;
             max-height: 50px;
-            mix-blend-mode: multiply; /* Removes white background */
-            filter: contrast(1.1);
         }
 
         .right-col { flex-grow: 1; font-size: 15px; color: #111; line-height: 1.5; }
@@ -83,9 +78,7 @@
             border: none;
             font-family: 'Kantumruy Pro', sans-serif;
             font-size: 15px;
-            padding: 0;
             color: #333;
-            font-weight: 400;
             width: 100%;
         }
         input:focus { outline: none; }
@@ -105,7 +98,6 @@
         }
         .mrz-line { display: block; white-space: pre; margin: 0; }
         
-        /* SIDEBAR */
         .sidebar {
             width: 220px;
             background: #fff;
@@ -129,8 +121,6 @@
         }
         .btn-random { background: #3b82f6; }
         .btn-save { background: #059669; }
-        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
-
         #imgIn { position: absolute; left: -9999px; }
     </style>
 </head>
@@ -145,7 +135,7 @@
                     <span id="upload-txt" style="font-size: 11px; color: #777; padding: 10px;">ចុចទីនេះដើម្បីដាក់រូបភាព</span>
                 </div>
                 <div class="sig-container">
-                    <img id="sig-display" src="asset/image/1.webp">
+                    <img id="sig-display" src="">
                 </div>
             </div>
 
@@ -210,56 +200,76 @@
             <div class="mrz-line" id="m3">HENG<<PANHA<<<<<<<<<<<<<<<<<<<<</div>
         </div>
     </div>
-    
-    
-</div>
 
+</div>
+                    
     <div class="sidebar">
         <input type="file" id="imgIn" accept="image/*">
         <button class="btn btn-random" onclick="generateRandom()">🔄 Random Info</button>
-        <button class="btn btn-save" onclick="saveImage()">📥 Download Clean Image</button>
-        <small style="color:#777; font-size:10px; text-align:center;">Note: Must use "Live Server" to download.</small>
+        <button class="btn btn-save" onclick="saveImage()">📥 Download Image</button>
     </div>
-    
+
 <script>
     const districts = ["ចំការមន", "ដូនពេញ", "៧មករា", "ទួលគោក", "សែនសុខ", "មានជ័យ", "បឹងកេងកង"];
     const feats = ["ប្រជ្រុយចំ. ០,៥ស.ម លើចិញ្ចើម", "ស្លាកស្នាមក្បែរត្រចៀក", "ប្រជ្រុយលើបបូរមាត់", "គ្មាន", "ស្លាកស្នាមលើថ្ងាស"];
 
     function triggerUpload() { document.getElementById('imgIn').click(); }
 
+    // FUNCTION: LOAD IMAGE AND REMOVE WHITE BACKGROUND
+    function loadAndCleanSignature(imgUrl) {
+        const img = new Image();
+        img.src = imgUrl;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            // Loop through pixels and make white (or near-white) transparent
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                // If the pixel is very light/white, set alpha to 0
+                if (r > 200 && g > 200 && b > 200) {
+                    data[i + 3] = 0;
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+            document.getElementById('sig-display').src = canvas.toDataURL();
+        };
+    }
+
     function updateMRZ() {
         const id = document.getElementById('topID').value.replace(/\s/g, "").substring(0,9);
-        const nameVal = document.getElementById('nameInput').value;
-        const nameMatch = nameVal.match(/[A-Z\s]+/g);
+        const nameMatch = document.getElementById('nameInput').value.match(/[A-Z\s]+/g);
         const dob = document.getElementById('inputDOB').value.split('.');
         const exp = document.getElementById('validTo').value.split('.');
         const gender = document.getElementById('genderInput').value === "ប្រុស" ? "M" : "F";
 
         document.getElementById('m1').innerText = `IDKHM${id}`.padEnd(30, '<');
-        
         if(dob.length === 3 && exp.length === 3) {
             const d = dob[2].substring(2) + dob[1] + dob[0];
             const e = exp[2].substring(2) + exp[1] + exp[0];
             document.getElementById('m2').innerText = `${d}2${gender}${e}0KHM<<<<<<<<<<<6`;
         }
-
         if (nameMatch) {
             let n = nameMatch.join('').trim().replace(/\s+/g, "<<");
             document.getElementById('m3').innerText = n.padEnd(30, '<');
         }
     }
 
-    // UPDATED SAVE FUNCTION FOR BETTER COMPATIBILITY
-    async function saveImage() {
+    function saveImage() {
         const card = document.getElementById('id-card');
-        
         html2canvas(card, { 
-            scale: 3, 
-            useCORS: true, 
-            allowTaint: true,
+            scale: 4, 
+            useCORS: true,
             backgroundColor: null,
             onclone: (clonedDoc) => {
-                // Convert inputs to static text for the image capture
                 const inputs = clonedDoc.getElementById('id-card').querySelectorAll('input');
                 inputs.forEach(input => {
                     const span = clonedDoc.createElement('span');
@@ -271,12 +281,9 @@
             }
         }).then(canvas => {
             const link = document.createElement('a');
-            link.download = 'Cambodia_ID_Card.png';
-            link.href = canvas.toDataURL('image/png');
+            link.download = 'CLEAN_ID_CARD.png';
+            link.href = canvas.toDataURL('image/png', 1.0);
             link.click();
-        }).catch(err => {
-            alert("Download failed. Please ensure you are running this file on a Live Server (http://).");
-            console.error(err);
         });
     }
 
@@ -301,9 +308,9 @@
         document.getElementById('feature').value = feats[Math.floor(Math.random() * feats.length)];
         document.getElementById('addressInput').value = "ភ្នំពេញ, " + districts[Math.floor(Math.random() * districts.length)];
         
-        // Randomize Signature from asset/image/1.webp to 20.webp
+        // Random signature and clean background
         const randomSig = Math.floor(Math.random() * 20) + 1;
-        document.getElementById('sig-display').src = `asset/image/${randomSig}.webp`;
+        loadAndCleanSignature(`asset/image/${randomSig}.webp`);
 
         updateMRZ();
     }
@@ -311,13 +318,18 @@
     document.getElementById('imgIn').onchange = e => {
         const [file] = e.target.files;
         if (file) {
-            document.getElementById('view-photo').src = URL.createObjectURL(file);
-            document.getElementById('view-photo').style.display = 'block';
-            document.getElementById('upload-txt').style.display = 'none';
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                document.getElementById('view-photo').src = event.target.result;
+                document.getElementById('view-photo').style.display = 'block';
+                document.getElementById('upload-txt').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
         }
     };
 
-    // Initialize MRZ on load
+    // Load initial clean signature
+    loadAndCleanSignature(`asset/image/1.webp`);
     updateMRZ();
 </script>
 </body>

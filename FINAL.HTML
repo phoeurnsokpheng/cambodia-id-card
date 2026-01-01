@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambodian ID Generator - Pro HD</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap');
+
+        body {
+            background-color: #d6ccc2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Kantumruy Pro', sans-serif;
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 25px;
+        }
+
+        /* THE CARD */
+        #id-card {
+            width: 600px; 
+            height: 380px; 
+            background-color: #f5fbe0;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-section { display: flex; gap: 20px; height: 215px; }
+        
+        .left-col { width: 130px; text-align: center; }
+        .photo-box {
+            width: 125px;
+            height: 155px;
+            border: 1px solid #aaa;
+            background: #fff;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .photo-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* SIGNATURE AREA */
+        .sig-container {
+            margin-top: 15px;
+            width: 125px;
+            height: 55px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .sig-container img {
+            max-width: 110px;
+            max-height: 50px;
+            mix-blend-mode: multiply; /* Removes white background */
+            filter: contrast(1.1);
+        }
+
+        .right-col { flex-grow: 1; font-size: 15px; color: #111; line-height: 1.5; }
+        .id-num-display { text-align: right; font-size: 24px; font-weight: bold; margin-bottom: 10px; height: 35px; color: #222; }
+        
+        .row { display: flex; align-items: baseline; margin-bottom: 5px; font-weight: 700; }
+        .label { color: #000; margin-right: 8px; white-space: nowrap; }
+        .flex { display: flex; justify-content: space-between; }
+
+        input {
+            background: transparent;
+            border: none;
+            font-family: 'Kantumruy Pro', sans-serif;
+            font-size: 15px;
+            padding: 0;
+            color: #333;
+            font-weight: 400;
+            width: 100%;
+        }
+        input:focus { outline: none; }
+        .bold-text { font-weight: 700 !important; color: #000; font-size: 16px; }
+
+        .divider { height: 2px; background: #000; margin: 12px 0; width: 100%; }
+
+        .mrz-container {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 20px; 
+            letter-spacing: 4px; 
+            line-height: 1.1;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #222;
+            margin-top: 10px;
+        }
+        .mrz-line { display: block; white-space: pre; margin: 0; }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            padding: 14px;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .btn-random { background: #3b82f6; }
+        .btn-save { background: #059669; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        #imgIn { position: absolute; left: -9999px; }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div id="id-card">
+        <div class="top-section">
+            <div class="left-col">
+                <div class="photo-box" onclick="triggerUpload()">
+                    <img id="view-photo" src="" style="display:none;">
+                    <span id="upload-txt" style="font-size: 11px; color: #777; padding: 10px;">ចុចទីនេះដើម្បីដាក់រូបភាព</span>
+                </div>
+                <div class="sig-container">
+                    <img id="sig-display" src="asset/image/1.webp">
+                </div>
+            </div>
+
+            <div class="right-col">
+                <div class="id-num-display">
+                    <input type="text" id="topID" value="55927000" style="text-align: right; font-weight: bold; font-size: 24px;">
+                </div>
+                
+                <div class="row">
+                    <span class="label">គោត្តនាមនិងនាម:</span> 
+                    <input type="text" id="nameInput" class="bold-text" value="ហេង បញ្ញា HENG PANHA">
+                </div>
+
+                <div class="row flex">
+                    <div style="display:flex;">
+                        <span class="label">ថ្ងៃខែឆ្នាំកំណើត:</span> 
+                        <input type="text" id="inputDOB" value="19.12.1993" style="width:90px">
+                    </div>
+                    <div style="display:flex;">
+                        <span class="label">ភេទ:</span> 
+                        <input type="text" id="genderInput" value="ប្រុស" style="width:40px">
+                    </div>
+                    <div style="display:flex;">
+                        <span class="label">កម្ពស់:</span> 
+                        <input type="text" id="heightInput" value="153" style="width:35px">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <span class="label">ទីកន្លែងកំណើត:</span> 
+                    <input type="text" id="birthPlace" value="ភ្នំពេញ">
+                </div>
+
+                <div class="row">
+                    <span class="label">អាសយដ្ឋាន:</span> 
+                    <input type="text" id="addressInput" value="ភ្នំពេញ, ទួលគោក">
+                </div>
+
+                <div class="row flex">
+                    <div style="display:flex;">
+                        <span class="label">សុពលភាព:</span> 
+                        <input type="text" id="validFrom" value="19.12.2023" style="width:95px">
+                    </div>
+                    <div style="display:flex;">
+                        <span class="label">ដល់ថ្ងៃ:</span> 
+                        <input type="text" id="validTo" value="19.12.2033" style="width:95px">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <span class="label">ភិនភាគ:</span> 
+                    <input type="text" id="feature" value="ប្រជ្រុយចំ. ០,៥ស.ម លើចិញ្ចើម">
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="mrz-container">
+            <div class="mrz-line" id="m1">IDKHM55927000<<<<<<<<<<<<<<<<<</div>
+            <div class="mrz-line" id="m2">9312192M3312190KHM<<<<<<<<<<<6</div>
+            <div class="mrz-line" id="m3">HENG<<PANHA<<<<<<<<<<<<<<<<<<<<</div>
+        </div>
+    </div>
+    
+    
+</div>
+
+    <div class="sidebar">
+        <input type="file" id="imgIn" accept="image/*">
+        <button class="btn btn-random" onclick="generateRandom()">🔄 Random Info</button>
+        <button class="btn btn-save" onclick="saveImage()">📥 Download Clean Image</button>
+        <small style="color:#777; font-size:10px; text-align:center;">Note: Must use "Live Server" to download.</small>
+    </div>
+    
+<script>
+    const districts = ["ចំការមន", "ដូនពេញ", "៧មករា", "ទួលគោក", "សែនសុខ", "មានជ័យ", "បឹងកេងកង"];
+    const feats = ["ប្រជ្រុយចំ. ០,៥ស.ម លើចិញ្ចើម", "ស្លាកស្នាមក្បែរត្រចៀក", "ប្រជ្រុយលើបបូរមាត់", "គ្មាន", "ស្លាកស្នាមលើថ្ងាស"];
+
+    function triggerUpload() { document.getElementById('imgIn').click(); }
+
+    function updateMRZ() {
+        const id = document.getElementById('topID').value.replace(/\s/g, "").substring(0,9);
+        const nameVal = document.getElementById('nameInput').value;
+        const nameMatch = nameVal.match(/[A-Z\s]+/g);
+        const dob = document.getElementById('inputDOB').value.split('.');
+        const exp = document.getElementById('validTo').value.split('.');
+        const gender = document.getElementById('genderInput').value === "ប្រុស" ? "M" : "F";
+
+        document.getElementById('m1').innerText = `IDKHM${id}`.padEnd(30, '<');
+        
+        if(dob.length === 3 && exp.length === 3) {
+            const d = dob[2].substring(2) + dob[1] + dob[0];
+            const e = exp[2].substring(2) + exp[1] + exp[0];
+            document.getElementById('m2').innerText = `${d}2${gender}${e}0KHM<<<<<<<<<<<6`;
+        }
+
+        if (nameMatch) {
+            let n = nameMatch.join('').trim().replace(/\s+/g, "<<");
+            document.getElementById('m3').innerText = n.padEnd(30, '<');
+        }
+    }
+
+    // UPDATED SAVE FUNCTION FOR BETTER COMPATIBILITY
+    async function saveImage() {
+        const card = document.getElementById('id-card');
+        
+        html2canvas(card, { 
+            scale: 3, 
+            useCORS: true, 
+            allowTaint: true,
+            backgroundColor: null,
+            onclone: (clonedDoc) => {
+                // Convert inputs to static text for the image capture
+                const inputs = clonedDoc.getElementById('id-card').querySelectorAll('input');
+                inputs.forEach(input => {
+                    const span = clonedDoc.createElement('span');
+                    span.innerText = input.value;
+                    span.style.cssText = window.getComputedStyle(input).cssText;
+                    span.style.display = "inline-block";
+                    input.parentNode.replaceChild(span, input);
+                });
+            }
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Cambodia_ID_Card.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }).catch(err => {
+            alert("Download failed. Please ensure you are running this file on a Live Server (http://).");
+            console.error(err);
+        });
+    }
+
+    function generateRandom() {
+        const fNames = [{kh: "ហេង", en: "HENG"}, {kh: "សុខ", en: "SOK"}, {kh: "ចាន់", en: "CHAN"}];
+        const gNames = [{kh: "បញ្ញា", en: "PANHA"}, {kh: "ដារ៉ា", en: "DARA"}, {kh: "មុន្នី", en: "MUNNY"}];
+        const f = fNames[Math.floor(Math.random() * fNames.length)];
+        const g = gNames[Math.floor(Math.random() * gNames.length)];
+        
+        document.getElementById('nameInput').value = `${f.kh} ${g.kh} ${f.en} ${g.en}`;
+        document.getElementById('topID').value = Math.floor(10000000 + Math.random() * 90000000);
+        
+        const day = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
+        const mon = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+        const year = Math.floor(Math.random() * (2000 - 1980 + 1)) + 1980;
+        
+        document.getElementById('inputDOB').value = `${day}.${mon}.${year}`;
+        document.getElementById('validFrom').value = `${day}.${mon}.2023`;
+        document.getElementById('validTo').value = `${day}.${mon}.2033`;
+        document.getElementById('genderInput').value = Math.random() > 0.5 ? "ស្រី" : "ប្រុស";
+        document.getElementById('heightInput').value = Math.floor(Math.random() * (185 - 150 + 1)) + 150;
+        document.getElementById('feature').value = feats[Math.floor(Math.random() * feats.length)];
+        document.getElementById('addressInput').value = "ភ្នំពេញ, " + districts[Math.floor(Math.random() * districts.length)];
+        
+        // Randomize Signature from asset/image/1.webp to 20.webp
+        const randomSig = Math.floor(Math.random() * 20) + 1;
+        document.getElementById('sig-display').src = `asset/image/${randomSig}.webp`;
+
+        updateMRZ();
+    }
+
+    document.getElementById('imgIn').onchange = e => {
+        const [file] = e.target.files;
+        if (file) {
+            document.getElementById('view-photo').src = URL.createObjectURL(file);
+            document.getElementById('view-photo').style.display = 'block';
+            document.getElementById('upload-txt').style.display = 'none';
+        }
+    };
+
+    // Initialize MRZ on load
+    updateMRZ();
+</script>
+</body>
+</html>
